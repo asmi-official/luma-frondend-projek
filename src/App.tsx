@@ -20,27 +20,28 @@ import Register from "./pages/register";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/product" element={<ProductList />} />
-      <Route path="/product/create" element={<CreateProduct />} />
-      <Route path="/product/:id/update" element={<UpdateProduct />} />
-      <Route
-        path="/data-master/role-pengguna"
-        element={<RoleManagementList />}
-      />
-      <Route path="/data-master/kategori" element={<CategoryList />} />
-      <Route
-        path="/data-master/metode-pembayaran"
-        element={<PaymentMethodList />}
-      />
-      <Route path="/data-master/event-promo" element={<EventPromoList />} />
-      <Route path="/data-master/event-promo/create" element={<CreatePromo />} />
-      <Route
-        path="/data-master/event-promo/:id/update"
-        element={<UpdatePromo />}
-      />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      <Route element={<GuestRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/product" element={<ProductList />} />
+        <Route path="/product/create" element={<CreateProduct />} />
+        <Route path="/product/:id/update" element={<UpdateProduct />} />
+        <Route path="/cabang" element={<CabangList />} />
+        <Route path="/cabang/create" element={<CreateCabang />} />
+        <Route path="/cabang/update/:id" element={<UpdateCabang />} />
+        <Route path="/data-master/role-pengguna" element={<RoleManagementList />} />
+        <Route path="/data-master/kategori" element={<CategoryList />} />
+        <Route path="/data-master/metode-pembayaran" element={<PaymentMethodList />} />
+        <Route path="/data-master/event-promo" element={<EventPromoList />} />
+        <Route path="/data-master/event-promo/create" element={<CreatePromo />} />
+        <Route path="/data-master/event-promo/:id/update" element={<UpdatePromo />} />
+      </Route>
     </Routes>
   );
 }
