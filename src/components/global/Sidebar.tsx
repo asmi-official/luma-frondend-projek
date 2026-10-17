@@ -99,6 +99,62 @@ type MenuGroup = {
   items: MenuNode[]
 }
 
+const defaultMenuTree: {
+  standaloneItems: MenuNode[]
+  groups: MenuGroup[]
+} = {
+  standaloneItems: [
+    { id: 'dashboard', label: 'Dashboard', to: '/', icon: LayoutGridIcon, children: [] },
+    { id: 'help', label: 'Bantuan & Feedback', to: '/bantuan', icon: MessageCircleQuestionIcon, children: [] },
+  ],
+  groups: [
+    {
+      id: 'transactions',
+      title: 'Transaksi',
+      items: [
+        { id: 'cashier', label: 'Kasir', to: '/kasir', icon: ShoppingCartIcon, children: [] },
+        { id: 'history', label: 'Riwayat Transaksi', to: '/riwayat-transaksi', icon: HistoryIcon, children: [] },
+      ],
+    },
+    {
+      id: 'business',
+      title: 'Bisnis',
+      items: [
+        { id: 'product', label: 'Produk', to: '/product', icon: Package2Icon, children: [] },
+        { id: 'inventory', label: 'Inventory', to: '/inventory', icon: BoxIcon, children: [] },
+        { id: 'expense', label: 'Pengeluaran', to: '/pengeluaran', icon: WalletIcon, children: [] },
+        {
+          id: 'data-master',
+          label: 'Data Master',
+          to: '/data-master',
+          icon: FolderCogIcon,
+          children: [
+            { id: 'category', label: 'Kategori', to: '/data-master/kategori', icon: TagsIcon, children: [] },
+            { id: 'role', label: 'Role Pengguna', to: '/data-master/role-pengguna', icon: UsersRoundIcon, children: [] },
+            { id: 'payment', label: 'Metode Pembayaran', to: '/data-master/metode-pembayaran', icon: CreditCardIcon, children: [] },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'analysis',
+      title: 'Analisis',
+      items: [
+        { id: 'luma-ai', label: 'Luma AI', to: '/luma-ai', icon: WandSparklesIcon, children: [] },
+        { id: 'report', label: 'Laporan', to: '/laporan', icon: ChartColumnIncreasingIcon, children: [] },
+      ],
+    },
+    {
+      id: 'management',
+      title: 'Pengelolaan',
+      items: [
+        { id: 'employee', label: 'Karyawan', to: '/karyawan', icon: BriefcaseBusinessIcon, children: [] },
+        { id: 'branch', label: 'Cabang', to: '/cabang', icon: Building2Icon, children: [] },
+      ],
+    },
+  ],
+}
+
 function buildMenuTree(flexParams: FlexParam[]) {
   const childrenByHeaderId = new Map<string, FlexParam[]>()
 
@@ -230,7 +286,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     limit: 100,
   })
 
-  const { standaloneItems, groups } = buildMenuTree(data?.data ?? [])
+  const menuTree = data?.data?.length ? buildMenuTree(data.data) : defaultMenuTree
+  const { standaloneItems, groups } = menuTree
   const topItems = standaloneItems.filter((item) => item.label !== 'Bantuan & Feedback')
   const bottomItems = standaloneItems.filter((item) => item.label === 'Bantuan & Feedback')
 

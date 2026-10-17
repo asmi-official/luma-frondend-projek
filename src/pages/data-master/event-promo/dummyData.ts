@@ -1,26 +1,17 @@
-import americanoPhoto from '../../../assets/dummy-products/americano.jpg'
-import bananaBreadPhoto from '../../../assets/dummy-products/banana-bread.jpg'
-import cappuccinoPhoto from '../../../assets/dummy-products/cappuccino.jpg'
-import chocolateFrappePhoto from '../../../assets/dummy-products/chocolate-frappe.jpg'
-import croissantPhoto from '../../../assets/dummy-products/croissant.jpg'
-import esTehManisPhoto from '../../../assets/dummy-products/es-teh-manis.jpg'
-import kopiSusuGulaArenPhoto from '../../../assets/dummy-products/kopi-susu-gula-aren.jpg'
-import matchaLattePhoto from '../../../assets/dummy-products/matcha-latte.jpg'
-import redVelvetCakePhoto from '../../../assets/dummy-products/red-velvet-cake.jpg'
-import rotiBakarPhoto from '../../../assets/dummy-products/roti-bakar.jpg'
+import productPlaceholderPhoto from '../../../assets/empty-promo-products.png'
 import type { Promo, PromoProduct } from './types'
 
 const CATALOG: PromoProduct[] = [
-  { id: 'dummy-americano', name: 'Americano', category: 'Coffee', price: 25000, photoUrl: americanoPhoto },
-  { id: 'dummy-cappuccino', name: 'Cappuccino', category: 'Coffee', price: 28000, photoUrl: cappuccinoPhoto },
-  { id: 'dummy-kopi-susu-gula-aren', name: 'Kopi Susu Gula Aren', category: 'Coffee', price: 23000, photoUrl: kopiSusuGulaArenPhoto },
-  { id: 'dummy-matcha-latte', name: 'Matcha Latte', category: 'Non Coffee', price: 30000, photoUrl: matchaLattePhoto },
-  { id: 'dummy-es-teh-manis', name: 'Es Teh Manis', category: 'Non Coffee', price: 10000, photoUrl: esTehManisPhoto },
-  { id: 'dummy-chocolate-frappe', name: 'Chocolate Frappe', category: 'Non Coffee', price: 32000, photoUrl: chocolateFrappePhoto },
-  { id: 'dummy-croissant', name: 'Croissant', category: 'Pastry', price: 22000, photoUrl: croissantPhoto },
-  { id: 'dummy-roti-bakar', name: 'Roti Bakar', category: 'Pastry', price: 18000, photoUrl: rotiBakarPhoto },
-  { id: 'dummy-banana-bread', name: 'Banana Bread', category: 'Pastry', price: 20000, photoUrl: bananaBreadPhoto },
-  { id: 'dummy-red-velvet-cake', name: 'Red Velvet Cake', category: 'Pastry', price: 27000, photoUrl: redVelvetCakePhoto },
+  { id: 'dummy-americano', name: 'Americano', category: 'Coffee', price: 25000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-cappuccino', name: 'Cappuccino', category: 'Coffee', price: 28000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-kopi-susu-gula-aren', name: 'Kopi Susu Gula Aren', category: 'Coffee', price: 23000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-matcha-latte', name: 'Matcha Latte', category: 'Non Coffee', price: 30000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-es-teh-manis', name: 'Es Teh Manis', category: 'Non Coffee', price: 10000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-chocolate-frappe', name: 'Chocolate Frappe', category: 'Non Coffee', price: 32000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-croissant', name: 'Croissant', category: 'Pastry', price: 22000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-roti-bakar', name: 'Roti Bakar', category: 'Pastry', price: 18000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-banana-bread', name: 'Banana Bread', category: 'Pastry', price: 20000, photoUrl: productPlaceholderPhoto },
+  { id: 'dummy-red-velvet-cake', name: 'Red Velvet Cake', category: 'Pastry', price: 27000, photoUrl: productPlaceholderPhoto },
 ]
 
 const pick = (...names: string[]) => CATALOG.filter((product) => names.includes(product.name))
