@@ -9,15 +9,20 @@ const ACCEPTED_TYPES = ['image/png', 'image/jpeg']
 
 type ProductPhotoUploadProps = {
   control: Control<ProductFormValues>
+  existingPhotoUrl?: string | null
 }
 
-export default function ProductPhotoUpload({ control }: ProductPhotoUploadProps) {
+export default function ProductPhotoUpload({ control, existingPhotoUrl }: ProductPhotoUploadProps) {
   return (
     <Controller
       control={control}
       name="image"
       render={({ field }) => (
-        <PhotoDropzone value={field.value} onChange={field.onChange} />
+        <PhotoDropzone
+          value={field.value}
+          onChange={field.onChange}
+          existingPhotoUrl={existingPhotoUrl}
+        />
       )}
     />
   )
@@ -26,13 +31,16 @@ export default function ProductPhotoUpload({ control }: ProductPhotoUploadProps)
 function PhotoDropzone({
   value,
   onChange,
+  existingPhotoUrl,
 }: {
   value: File | null
   onChange: (file: File | null) => void
+  existingPhotoUrl?: string | null
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragActive, setIsDragActive] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isExistingPhotoRemoved, setIsExistingPhotoRemoved] = useState(false)
 
   useEffect(() => {
     if (!value) {
@@ -47,6 +55,7 @@ function PhotoDropzone({
   const applyFile = (file: File | undefined | null) => {
     if (!file) return
     if (!ACCEPTED_TYPES.includes(file.type) || file.size > MAX_SIZE_BYTES) return
+    setIsExistingPhotoRemoved(false)
     onChange(file)
   }
 
@@ -62,17 +71,22 @@ function PhotoDropzone({
     />
   )
 
-  if (value && previewUrl) {
+  const displayUrl = previewUrl ?? (!isExistingPhotoRemoved ? existingPhotoUrl : null)
+
+  if (displayUrl) {
     return (
       <div className="flex w-full flex-col gap-2">
         <div className="h-[143px] w-full overflow-hidden rounded-[10px]">
-          <img src={previewUrl} alt="Preview produk" className="size-full object-cover" />
+          <img src={displayUrl ?? undefined} alt="Preview produk" className="size-full object-cover" />
         </div>
 
         <div className="flex w-full items-start gap-2">
           <button
             type="button"
-            onClick={() => onChange(null)}
+            onClick={() => {
+              setIsExistingPhotoRemoved(true)
+              onChange(null)
+            }}
             className="flex h-9 flex-1 items-center justify-center gap-1 rounded-lg border border-[#ef4444] bg-[#fef2f2] px-4 py-2"
           >
             <span className="text-sm font-semibold text-[#ef4444]">Hapus Foto</span>

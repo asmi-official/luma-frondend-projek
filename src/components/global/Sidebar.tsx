@@ -43,6 +43,7 @@ const iconByLabel: Record<string, IconComponent> = {
   'Role Pengguna': UsersRoundIcon,
   'Metode Pembayaran': CreditCardIcon,
   'Event Promo': PercentIcon,
+  'Event & Promo': PercentIcon,
 }
 
 const routeByLabel: Record<string, string> = {
@@ -62,6 +63,7 @@ const routeByLabel: Record<string, string> = {
   'Role Pengguna': '/data-master/role-pengguna',
   'Metode Pembayaran': '/data-master/metode-pembayaran',
   'Event Promo': '/data-master/event-promo',
+  'Event & Promo': '/data-master/event-promo',
 }
 
 function isMenuActive(pathname: string, to: string) {

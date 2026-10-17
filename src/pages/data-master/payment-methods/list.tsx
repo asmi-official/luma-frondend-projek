@@ -1,41 +1,37 @@
 import Button from '@mui/material/Button'
+import { isAxiosError } from 'axios'
 import { useState } from 'react'
+import {
+    useConnectPaymentGateway,
+    usePaymentGateway,
+    useUpdatePaymentGateway,
+} from '../../../api/paymentGateway'
+import { useCreatePaymentMethod, usePaymentMethods, useUpdatePaymentMethod } from '../../../api/paymentMethod'
 import CreatePaymentMethodModal from '../../../components/data-master/payment-methods/CreatePaymentMethodModal'
+import ConnectMidtransDrawer, {
+    type MidtransFormValues,
+} from '../../../components/data-master/payment-methods/ConnectMidtransDrawer'
 import PaymentMethodRow from '../../../components/data-master/payment-methods/PaymentMethodRow'
 import StatCard from '../../../components/data-master/role-management/StatCard'
 import DashboardLayout from '../../../components/global/DashboardLayout'
 import DynamicLucideIcon from '../../../icon/DynamicLucideIcon'
 import PlusIcon from '../../../icon/PlusIcon'
-import type { PaymentMethod, PaymentMethodFormValues } from './types'
-
-const initialMethods: PaymentMethod[] = [
-    {
-        id: 'virtual-account',
-        name: 'Virtual Account',
-        description: 'Transfer via VA bank BCA, BNI, BRI, Mandiri',
-        active: true,
-        icon: 'landmark',
-    },
-    {
-        id: 'qris',
-        name: 'QRIS',
-        description: 'Scan QR semua e-wallet & bank',
-        active: true,
-        icon: 'qr-code',
-    },
-    {
-        id: 'tunai',
-        name: 'Tunai',
-        description: 'Pembayaran langsung secara tunai',
-        active: true,
-        icon: 'banknote',
-    },
-]
+import { useAuthStore } from '../../../store/authStore'
+import type { PaymentMethodFormValues } from './types'
 
 export default function PaymentMethodList() {
-    const [methods, setMethods] = useState<PaymentMethod[]>(initialMethods)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isMidtransDrawerOpen, setIsMidtransDrawerOpen] = useState(false)
+    const [midtransServerError, setMidtransServerError] = useState<string | null>(null)
 
+    const { data: paymentMethodsData, isLoading: isPaymentMethodsLoading } = usePaymentMethods({
+        sort: 'created_at',
+        order: 'desc',
+        page: 1,
+        limit: 100,
+    })
+
+    const methods = paymentMethodsData?.data ?? []
     const totalMethod = methods.length
     const activeMethod = methods.filter((method) => method.active).length
     const inactiveMethod = methods.filter((method) => !method.active).length
@@ -48,25 +44,68 @@ export default function PaymentMethodList() {
         setIsModalOpen(false)
     }
 
-    const handleSubmitMethod = (values: PaymentMethodFormValues) => {
-        setMethods((prev) => [
-            ...prev,
-            {
-                id: crypto.randomUUID(),
-                name: values.name,
-                description: values.description,
-                icon: values.icon,
-                active: true,
-            },
-        ])
+    const createPaymentMethodMutation = useCreatePaymentMethod()
 
-        handleCloseModal()
+    const handleSubmitMethod = (values: PaymentMethodFormValues) => {
+        createPaymentMethodMutation.mutate(
+            {
+                key_payment_param_id: values.flexParamId,
+                active: values.name.trim().toLowerCase() === 'tunai',
+            },
+            {
+                onSuccess: () => handleCloseModal(),
+            },
+        )
     }
 
+    const updatePaymentMethodMutation = useUpdatePaymentMethod()
+
     const handleToggleActive = (methodId: string, active: boolean) => {
-        setMethods((prev) =>
-            prev.map((method) => (method.id === methodId ? { ...method, active } : method)),
-        )
+        updatePaymentMethodMutation.mutate({ id: methodId, active })
+    }
+
+    const user = useAuthStore((state) => state.user)
+    const isOwner = user?.role === 'Owner'
+
+    const { data: paymentGatewayData } = usePaymentGateway(isOwner)
+    const isMidtransConnected = !!paymentGatewayData?.data
+
+    const connectPaymentGatewayMutation = useConnectPaymentGateway()
+    const updatePaymentGatewayMutation = useUpdatePaymentGateway()
+    const isMidtransSubmitting =
+        connectPaymentGatewayMutation.isPending || updatePaymentGatewayMutation.isPending
+
+    const handleCloseMidtransDrawer = () => {
+        setIsMidtransDrawerOpen(false)
+        setMidtransServerError(null)
+    }
+
+    const handleSubmitMidtrans = (values: MidtransFormValues) => {
+        if (!isOwner) return
+        setMidtransServerError(null)
+
+        const payload = {
+            merchant_id: values.merchantId,
+            client_key: values.clientKey,
+            server_key: values.serverKey,
+        }
+
+        const mutation = isMidtransConnected
+            ? updatePaymentGatewayMutation
+            : connectPaymentGatewayMutation
+
+        mutation.mutate(payload, {
+            onSuccess: () => {
+                handleCloseMidtransDrawer()
+            },
+            onError: (error) => {
+                if (isAxiosError(error) && error.response?.data?.message) {
+                    setMidtransServerError(error.response.data.message)
+                    return
+                }
+                setMidtransServerError('Gagal menyimpan koneksi Midtrans. Coba lagi.')
+            },
+        })
     }
 
     return (
@@ -124,10 +163,72 @@ export default function PaymentMethodList() {
                     />
                 </div>
 
+                {isOwner && (isMidtransConnected ? (
+                    <div className="flex w-full items-center justify-between rounded-2xl border border-[#aeffde] bg-[#e6f7f0] p-4">
+                        <div className="flex items-center gap-3">
+                            <DynamicLucideIcon name="circle-check" size={18} className="shrink-0 text-[#19875a]" />
+                            <p className="text-[13px] leading-[1.4] text-[#0c5132]">
+                                <span className="font-semibold">Midtrans terhubung.</span> Merchant ID:{' '}
+                                {paymentGatewayData?.data?.merchant_id}
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            onClick={() => setIsMidtransDrawerOpen(true)}
+                            sx={{
+                                height: '36px',
+                                borderColor: '#aeffde',
+                                color: '#19875a',
+                                textTransform: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                                '&:hover': { borderColor: '#aeffde', backgroundColor: '#f0faf5' },
+                            }}
+                        >
+                            Perbarui
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="flex w-full items-center justify-between rounded-2xl border border-[#fed07a] bg-[#fff6e6] p-4">
+                        <div className="flex items-center gap-3">
+                            <DynamicLucideIcon name="triangle-alert" size={18} className="shrink-0 text-[#fe9a00]" />
+                            <p className="text-[13px] leading-[1.4] text-[#7a4f00]">
+                                <span className="font-semibold">Midtrans belum terhubung.</span> Aktifkan
+                                terlebih dahulu agar toggle metode pembayaran dapat digunakan
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outlined"
+                            onClick={() => setIsMidtransDrawerOpen(true)}
+                            sx={{
+                                height: '36px',
+                                borderColor: '#fed07a',
+                                color: '#fe9a00',
+                                textTransform: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                                '&:hover': { borderColor: '#fed07a', backgroundColor: '#fffaf0' },
+                            }}
+                        >
+                            Hubungkan Sekarang
+                        </Button>
+                    </div>
+                ))}
+
                 <div className="flex w-full flex-col items-start overflow-hidden rounded-2xl border border-[#ebedf1] bg-white">
                     <div className="w-full bg-[#fafafb] px-4 py-3">
                         <p className="text-sm font-medium text-[#797c81]">Metode Pembayaran</p>
                     </div>
+
+                    {!isPaymentMethodsLoading && methods.length === 0 && (
+                        <p className="w-full py-10 text-center text-sm text-[#8f99a7]">
+                            Belum ada metode pembayaran
+                        </p>
+                    )}
 
                     {methods.map((method, index) => (
                         <PaymentMethodRow
@@ -145,6 +246,23 @@ export default function PaymentMethodList() {
                 onClose={handleCloseModal}
                 onSubmit={handleSubmitMethod}
                 methodToEdit={null}
+                isSubmitting={createPaymentMethodMutation.isPending}
+            />
+
+            <ConnectMidtransDrawer
+                open={isMidtransDrawerOpen}
+                onClose={handleCloseMidtransDrawer}
+                onSubmit={handleSubmitMidtrans}
+                isSubmitting={isMidtransSubmitting}
+                serverError={midtransServerError}
+                existingData={
+                    paymentGatewayData?.data
+                        ? {
+                              merchantId: paymentGatewayData.data.merchant_id,
+                              clientKey: paymentGatewayData.data.client_key,
+                          }
+                        : null
+                }
             />
         </DashboardLayout>
     )
