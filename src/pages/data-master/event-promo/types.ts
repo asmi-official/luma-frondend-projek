@@ -1,12 +1,22 @@
-export type PromoStatus = 'active' | 'scheduled' | 'finished' | 'inactive'
+/** Status values exactly as the API returns and filters them. */
+export type PromoStatus = 'Aktif' | 'Terjadwal' | 'Selesai' | 'Nonaktif'
 
-export type PromoDiscountType = 'percentage' | 'nominal' | 'special_price'
+export const PROMO_STATUSES: PromoStatus[] = ['Aktif', 'Terjadwal', 'Selesai', 'Nonaktif']
 
-export const PROMO_STATUS_LABEL: Record<PromoStatus, string> = {
-  active: 'Aktif',
-  scheduled: 'Terjadwal',
-  finished: 'Selesai',
-  inactive: 'Nonaktif',
+export type PromoDiscountType = 'percentage' | 'fixed' | 'special_price'
+
+/** Title of each discount type, shown on the option cards and sent as the promo's discount text. */
+export const PROMO_DISCOUNT_TYPE_TITLE: Record<PromoDiscountType, string> = {
+  percentage: 'Diskon Persentase',
+  fixed: 'Diskon Nominal',
+  special_price: 'Harga Spesial',
+}
+
+/** Short explanation of each discount type, shown on the option cards and sent as the promo's discount description. */
+export const PROMO_DISCOUNT_TYPE_DESCRIPTION: Record<PromoDiscountType, string> = {
+  percentage: 'Potongan harga dalam persen (%)',
+  fixed: 'Potongan harga dalam nominal (Rp)',
+  special_price: 'Harga tetap khusus saat promo',
 }
 
 /** Snapshot of a product at the time it was added to a promo. */
@@ -16,28 +26,6 @@ export type PromoProduct = {
   category: string
   price: number
   photoUrl: string | null
-  /** Fixed price during the promo; only set when the promo type is "special_price". */
-  specialPrice?: number
-}
-
-export type Promo = {
-  id: string
-  name: string
-  description: string
-  products: PromoProduct[]
-  allProducts: boolean
-  discountType: PromoDiscountType
-  /** Percent for "percentage", rupiah for "nominal"; unused for "special_price" (each product has its own price). */
-  discountValue: number
-  /** ISO date (YYYY-MM-DD) */
-  startDate: string
-  /** ISO date (YYYY-MM-DD) */
-  endDate: string
-  /** HH:mm */
-  startTime?: string
-  /** HH:mm */
-  endTime?: string
-  status: PromoStatus
 }
 
 export type PromoFormValues = {
