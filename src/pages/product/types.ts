@@ -1,6 +1,7 @@
 export type ProductFormValues = {
   name: string
   category: string
+  category_id: string
   sku: string
   unit: string
   cost_price: number

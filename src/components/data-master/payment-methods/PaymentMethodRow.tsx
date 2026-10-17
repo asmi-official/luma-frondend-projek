@@ -1,16 +1,19 @@
 import StatusBadge from '../../../components/data-master/category/StatusBadge'
 import DynamicLucideIcon from '../../../icon/DynamicLucideIcon'
-import type { PaymentMethod } from '../../../pages/data-master/payment-methods/types'
+import type { PaymentMethodItem } from '../../../api/paymentMethod'
 import { getPaymentMethodIconStyle } from './paymentMethodIconStyles'
 
 type PaymentMethodRowProps = {
-  method: PaymentMethod
+  method: PaymentMethodItem
   isAlternate: boolean
   onToggleActive: (active: boolean) => void
 }
 
 export default function PaymentMethodRow({ method, isAlternate, onToggleActive }: PaymentMethodRowProps) {
-  const style = getPaymentMethodIconStyle(method.icon)
+  const param = method.key_payment
+  const fallbackStyle = getPaymentMethodIconStyle(param.icon ?? '')
+  const iconBg = param.color_bg_icon ?? fallbackStyle.bg
+  const iconColor = param.color_icon ?? fallbackStyle.color
   const toggleTrackClass = method.active ? 'bg-[#4e5bd6]' : 'bg-[#d2d3d5]'
   const toggleThumbClass = method.active ? 'translate-x-[18px]' : 'translate-x-0'
 
@@ -18,14 +21,14 @@ export default function PaymentMethodRow({ method, isAlternate, onToggleActive }
     <div className={`flex w-full items-center gap-4 px-4 py-3 ${isAlternate ? 'bg-[#fafafb]' : 'bg-white'}`}>
       <span
         className="flex size-10 shrink-0 items-center justify-center rounded-xl"
-        style={{ backgroundColor: style.bg }}
+        style={{ backgroundColor: iconBg }}
       >
-        <DynamicLucideIcon name={method.icon} size={18} style={{ color: style.color }} />
+        <DynamicLucideIcon name={param.icon ?? 'credit-card'} size={18} style={{ color: iconColor }} />
       </span>
 
       <div className="flex min-w-0 flex-1 flex-col items-start">
-        <p className="text-sm font-semibold leading-[1.4] text-[#20242d]">{method.name}</p>
-        <p className="pt-0.5 text-xs leading-[1.4] text-[#8f99a7]">{method.description}</p>
+        <p className="text-sm font-semibold leading-[1.4] text-[#20242d]">{param.value_param}</p>
+        <p className="pt-0.5 text-xs leading-[1.4] text-[#8f99a7]">{param.description ?? ''}</p>
       </div>
 
       <StatusBadge active={method.active} />

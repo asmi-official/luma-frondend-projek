@@ -1,9 +1,12 @@
 import Dialog from '@mui/material/Dialog'
+import type { ReactNode } from 'react'
 import DynamicLucideIcon from '../../icon/DynamicLucideIcon'
 
 type ConfirmDeleteModalProps = {
   open: boolean
   itemName: string
+  entityLabel?: string
+  description?: ReactNode
   isLoading?: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -12,6 +15,8 @@ type ConfirmDeleteModalProps = {
 export default function ConfirmDeleteModal({
   open,
   itemName,
+  entityLabel = 'data',
+  description,
   isLoading = false,
   onConfirm,
   onCancel,
@@ -29,10 +34,16 @@ export default function ConfirmDeleteModal({
         </span>
 
         <div className="flex w-full flex-col items-start gap-2">
-          <p className="text-base font-semibold leading-[1.4] text-[#20242d]">Hapus data ini?</p>
+          <p className="text-base font-semibold leading-[1.4] text-[#20242d]">
+            Hapus {entityLabel} ini?
+          </p>
           <p className="text-xs leading-[1.4] text-[#797c81]">
-            <span className="font-medium">{itemName} </span>
-            akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+            {description ?? (
+              <>
+                <span className="font-medium">{itemName} </span>
+                akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+              </>
+            )}
           </p>
         </div>
 

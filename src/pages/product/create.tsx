@@ -1,14 +1,18 @@
 import Button from '@mui/material/Button'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { useCreateProduct } from '../../api/product'
 import DashboardLayout from '../../components/global/DashboardLayout'
 import ProductForm from '../../components/product/ProductForm'
 import type { ProductFormValues } from './types'
 
 export default function CreateProduct() {
-    const { control, handleSubmit } = useForm<ProductFormValues>({
+    const navigate = useNavigate()
+    const { control, handleSubmit, setValue } = useForm<ProductFormValues>({
         defaultValues: {
             name: '',
             category: '',
+            category_id: '',
             sku: '',
             unit: '',
             cost_price: 0,
@@ -20,8 +24,26 @@ export default function CreateProduct() {
         },
     })
 
+    const createProductMutation = useCreateProduct()
+
     const onSubmit = (values: ProductFormValues) => {
-        console.log(values)
+        createProductMutation.mutate(
+            {
+                name: values.name,
+                category: values.category,
+                category_id: values.category_id,
+                unit: values.unit,
+                cost_price: values.cost_price,
+                sell_price: values.sell_price,
+                stock: values.stock,
+                description: values.description,
+                active: values.active,
+                photo: values.image,
+            },
+            {
+                onSuccess: () => navigate('/product'),
+            },
+        )
     }
 
     return (
@@ -42,6 +64,7 @@ export default function CreateProduct() {
                         <Button
                             type="button"
                             variant="outlined"
+                            onClick={() => navigate('/product')}
                             sx={{
                                 height: '40px',
                                 textTransform: 'none',
@@ -57,6 +80,7 @@ export default function CreateProduct() {
                         <Button
                             type="submit"
                             variant="contained"
+                            disabled={createProductMutation.isPending}
                             sx={{
                                 height: '40px',
                                 bgcolor: '#4e5bd6',
@@ -68,12 +92,12 @@ export default function CreateProduct() {
                                 '&:hover': { bgcolor: '#3f4bc0', boxShadow: 'none' },
                             }}
                         >
-                            Simpan
+                            {createProductMutation.isPending ? 'Menyimpan...' : 'Simpan'}
                         </Button>
                     </div>
                 </div>
 
-                <ProductForm control={control} />
+                <ProductForm control={control} setValue={setValue} />
             </form>
         </DashboardLayout>
     )
