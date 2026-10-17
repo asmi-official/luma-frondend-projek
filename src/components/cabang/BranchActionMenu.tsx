@@ -6,8 +6,8 @@ interface BranchActionMenuProps {
   branch: FlexParam;
   isOpen: boolean;
   onToggle: () => void;
-  onViewDetail?: () => void;
-  onToggleActive?: () => void;
+  onViewDetail: () => void;
+  onToggleActive: () => void;
   onDelete: () => void;
 }
 

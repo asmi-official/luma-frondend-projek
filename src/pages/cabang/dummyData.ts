@@ -1,5 +1,86 @@
 import type { FlexParam } from "../../api/flexParams";
 
+export interface BranchDummyMeta {
+  code: string;
+  manager: string;
+  sales: string;
+  transactions: number;
+  expenses: string;
+}
+
+export const DUMMY_BRANCH_DETAILS: Record<string, BranchDummyMeta> = {
+  "dummy-cabang-01": {
+    code: "KMR-01",
+    manager: "Dewi Anggraini",
+    sales: "Rp 42.500.000",
+    transactions: 512,
+    expenses: "Rp 12.100.000",
+  },
+  "dummy-cabang-02": {
+    code: "KLG-02",
+    manager: "Rian Saputra",
+    sales: "Rp 38.200.000",
+    transactions: 470,
+    expenses: "Rp 10.800.000",
+  },
+  "dummy-cabang-03": {
+    code: "BSD-03",
+    manager: "Nadia Kusuma",
+    sales: "Rp 51.750.000",
+    transactions: 601,
+    expenses: "Rp 15.300.000",
+  },
+  "dummy-cabang-04": {
+    code: "DGB-04",
+    manager: "Fajar Nugroho",
+    sales: "Rp 33.900.000",
+    transactions: 388,
+    expenses: "Rp 9.450.000",
+  },
+  "dummy-cabang-05": {
+    code: "MLB-05",
+    manager: "Rina Wulandari",
+    sales: "Rp 8.200.000",
+    transactions: 95,
+    expenses: "Rp 2.100.000",
+  },
+  "dummy-cabang-06": {
+    code: "SDM-06",
+    manager: "Andi Wijaya",
+    sales: "Rp 46.300.000",
+    transactions: 549,
+    expenses: "Rp 13.700.000",
+  },
+  "dummy-cabang-07": {
+    code: "CHB-07",
+    manager: "Siti Amalla",
+    sales: "Rp 29.400.000",
+    transactions: 340,
+    expenses: "Rp 8.100.000",
+  },
+  "dummy-cabang-08": {
+    code: "PIK-08",
+    manager: "Tono Saputra",
+    sales: "Rp 55.600.000",
+    transactions: 612,
+    expenses: "Rp 16.200.000",
+  },
+  "dummy-cabang-09": {
+    code: "SPL-09",
+    manager: "Wahyu Pratama",
+    sales: "Rp 21.750.000",
+    transactions: 260,
+    expenses: "Rp 6.400.000",
+  },
+  "dummy-cabang-10": {
+    code: "LGN-10",
+    manager: "Rina Wulandari",
+    sales: "Rp 5.100.000",
+    transactions: 62,
+    expenses: "Rp 1.800.000",
+  },
+};
+
 function branch(id: string, name: string, active: boolean, createdAt: string): FlexParam {
   return {
     id,
