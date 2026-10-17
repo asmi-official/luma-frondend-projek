@@ -1,13 +1,6 @@
 import Button from "@mui/material/Button";
-import {
-  Building2,
-  ChevronDown,
-  CircleCheck,
-  CircleX,
-  Plus,
-  Search,
-  Store,
-} from "lucide-react";
+import { Building2, CircleCheck, CircleX, Store } from "lucide-react";
+import PlusIcon from "../../icon/PlusIcon";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,16 +10,27 @@ import {
 } from "../../api/flexParams";
 import emptyBranchesIllustration from "../../assets/empty-cabang.png";
 import ConfirmDeleteModal from "../../components/global/ConfirmDeleteModal";
+import CustomConfirmModal from "../../components/global/CustomConfirmModal";
 import DashboardLayout from "../../components/global/DashboardLayout";
 import EmptyState from "../../components/global/EmptyState";
+import FilterDropdown from "../../components/global/FilterDropdown";
+import DynamicLucideIcon from "../../icon/DynamicLucideIcon";
 import { SummaryCard } from "../../components/cabang/SummaryCard";
-import { StatusBadge } from "../../components/cabang/StatusBadge";
-import { LoadingRows } from "../../components/cabang/BranchComponents";
-import { BranchActionMenu } from "../../components/cabang/BranchActionMenu";
+import { BranchTable } from "../../components/cabang/BranchTable";
 import { DUMMY_BRANCHES } from "./dummyData";
 
 const CABANG_TYPE_PARAM = "BRANCH_OWNER";
 const PAGE_SIZE = 10;
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Aktif" },
+  { value: "inactive", label: "Nonaktif" },
+];
+
+const SCOPE_OPTIONS = [
+  { value: "active", label: "Cabang Aktif" },
+  { value: "inactive", label: "Cabang Nonaktif" },
+];
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -44,6 +48,7 @@ export default function CabangList() {
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [branchToDelete, setBranchToDelete] = useState<FlexParam | null>(null);
+  const [branchToToggleActive, setBranchToToggleActive] = useState<FlexParam | null>(null);
 
   const selectedStatus = scope === "all" ? status : scope;
   const filters = useMemo(() => {
@@ -151,15 +156,9 @@ export default function CabangList() {
   const isNoSearchResult =
     !isLoading && !isError && !hasBranches && !isEmptyBranchList;
 
-  const changeStatus = (value: StatusFilter) => {
-    setStatus(value);
-    setScope("all");
-    setPage(1);
-  };
-
-  const changeScope = (value: StatusFilter) => {
-    setScope(value);
-    setPage(1);
+  const handleConfirmToggleActive = () => {
+    if (!branchToToggleActive) return;
+    setBranchToToggleActive(null);
   };
 
   const handleConfirmDelete = () => {
@@ -179,10 +178,10 @@ export default function CabangList() {
       <div className="flex w-full flex-col gap-4 px-5 pt-4 pb-6 sm:px-7 sm:pt-6">
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold leading-[1.2] text-[#20242d]">
+            <h1 className="text-2xl font-semibold leading-[1.2] text-[#20242d]">
               Cabang
             </h1>
-            <p className="text-[11px] leading-[1.4] text-[#6a7789]">
+            <p className="text-sm leading-[1.4] text-[#6a7789]">
               Kelola cabang dan operasional bisnis Anda di satu tempat.
             </p>
           </div>
@@ -191,14 +190,13 @@ export default function CabangList() {
             type="button"
             variant="contained"
             onClick={() => navigate("/cabang/create")}
-            startIcon={<Plus size={14} />}
+            startIcon={<PlusIcon size={18} className="text-[#fdfeff]" />}
             sx={{
-              height: "29px",
-              fontSize: "11px",
+              height: "40px",
               bgcolor: "#4e5bd6",
               color: "#fdfeff",
               textTransform: "none",
-              borderRadius: "6px",
+              borderRadius: "8px",
               fontWeight: 600,
               boxShadow: "none",
               "&:hover": { bgcolor: "#3f4bc0", boxShadow: "none" },
@@ -211,17 +209,17 @@ export default function CabangList() {
         {!isEmptyBranchList && (
           <>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <SummaryCard
+               <SummaryCard
                 label="Total Cabang"
                 value={totalBranches}
-                description="Terdaftar di sistem"
+                description="Tersebar di 8 kota"
                 tone="blue"
                 icon={<Building2 size={11} />}
               />
               <SummaryCard
                 label="Cabang Aktif"
                 value={activeBranches}
-                description="Siap digunakan"
+                description="87% dari seluruh cabang"
                 tone="green"
                 icon={<CircleCheck size={11} />}
               />
@@ -234,63 +232,51 @@ export default function CabangList() {
               />
               <SummaryCard
                 label="Penjualan Bulan Ini"
-                value="Rp 0"
-                description="Data penjualan belum tersedia"
+                value="Rp 428,5jt"
+                description="+12% dari bulan lalu"
                 tone="purple"
                 icon={<Store size={11} />}
               />
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <label className="relative flex min-w-0 flex-1 items-center">
-                <Search
-                  size={13}
-                  className="pointer-events-none absolute left-3 text-[#9aa5b5]"
+            <div className="flex w-full items-center gap-3">
+              <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#e9e9ea] bg-white p-3">
+                <DynamicLucideIcon
+                  name="search"
+                  size={18}
+                  className="text-[#8f99a7]"
                 />
                 <input
+                  type="text"
                   value={search}
-                  onChange={(event) => {
-                    setSearch(event.target.value);
+                  onChange={(e) => {
+                    setSearch(e.target.value);
                     setPage(1);
                   }}
                   placeholder="Cari nama atau kode cabang..."
-                  className="h-8 w-full rounded-md border border-[#e6e9ef] bg-white pl-8 pr-3 text-[10px] text-[#20242d] outline-none placeholder:text-[#9aa5b5] focus:border-[#4e5bd6]"
+                  className="w-full text-sm text-[#20242d] placeholder:text-[#8f99a7] focus:outline-none"
                 />
-              </label>
-              <label className="relative">
-                <select
-                  value={status}
-                  onChange={(event) =>
-                    changeStatus(event.target.value as StatusFilter)
-                  }
-                  className="h-8 min-w-[108px] appearance-none rounded-md border border-[#e6e9ef] bg-white px-3 pr-7 text-[10px] text-[#657083] outline-none focus:border-[#4e5bd6]"
-                >
-                  <option value="all">Semua Status</option>
-                  <option value="active">Aktif</option>
-                  <option value="inactive">Nonaktif</option>
-                </select>
-                <ChevronDown
-                  size={12}
-                  className="pointer-events-none absolute right-2 top-2.5 text-[#8f99a7]"
-                />
-              </label>
-              <label className="relative">
-                <select
-                  value={scope}
-                  onChange={(event) =>
-                    changeScope(event.target.value as StatusFilter)
-                  }
-                  className="h-8 min-w-[110px] appearance-none rounded-md border border-[#e6e9ef] bg-white px-3 pr-7 text-[10px] text-[#657083] outline-none focus:border-[#4e5bd6]"
-                >
-                  <option value="all">Semua Cabang</option>
-                  <option value="active">Cabang Aktif</option>
-                  <option value="inactive">Cabang Nonaktif</option>
-                </select>
-                <ChevronDown
-                  size={12}
-                  className="pointer-events-none absolute right-2 top-2.5 text-[#8f99a7]"
-                />
-              </label>
+              </div>
+
+              <FilterDropdown
+                allLabel="Semua Status"
+                options={STATUS_OPTIONS}
+                value={status === "all" ? null : status}
+                onChange={(value) => {
+                  setStatus((value ?? "all") as StatusFilter);
+                  setPage(1);
+                }}
+              />
+
+              <FilterDropdown
+                allLabel="Semua Cabang"
+                options={SCOPE_OPTIONS}
+                value={scope === "all" ? null : scope}
+                onChange={(value) => {
+                  setScope((value ?? "all") as StatusFilter);
+                  setPage(1);
+                }}
+              />
             </div>
           </>
         )}
@@ -311,97 +297,28 @@ export default function CabangList() {
               }
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-[860px] w-full border-collapse text-left">
-                <thead className="bg-[#fbfbfc]">
-                  <tr className="border-b border-[#eceef2]">
-                    {[
-                      "Cabang",
-                      "Penanggung Jawab",
-                      "Penjualan",
-                      "Transaksi",
-                      "Pengeluaran",
-                      "Status",
-                      "Aksi",
-                    ].map((header) => (
-                      <th
-                        key={header}
-                        className="whitespace-nowrap px-3 py-2.5 text-[8px] font-medium text-[#7e8999]"
-                      >
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {isLoading && <LoadingRows />}
-                  {isError && (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-3 py-12 text-center text-xs text-[#8f99a7]"
-                      >
-                        Data cabang gagal dimuat. Silakan coba lagi.
-                      </td>
-                    </tr>
-                  )}
-                  {!isLoading &&
-                    !isError &&
-                    branches.map((branch: FlexParam) => (
-                      <tr
-                        key={branch.id}
-                        className="border-b border-[#f0f1f5] last:border-b-0 hover:bg-[#fcfcff]"
-                      >
-                        <td className="px-3 py-2.5">
-                          <p className="text-[9px] font-semibold text-[#303641]">
-                            {branch.value_param}
-                          </p>
-                          <p className="mt-0.5 text-[7px] text-[#9aa5b5]">
-                            {getBranchCode(branch.id)}
-                          </p>
-                        </td>
-                        <td className="px-3 py-2.5 text-[8px] text-[#556070]">
-                          —
-                        </td>
-                        <td className="px-3 py-2.5 text-[8px] text-[#556070]">
-                          —
-                        </td>
-                        <td className="px-3 py-2.5 text-[8px] text-[#556070]">
-                          —
-                        </td>
-                        <td className="px-3 py-2.5 text-[8px] text-[#556070]">
-                          —
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <StatusBadge active={branch.active} />
-                        </td>
-                        <td className="px-3 py-2.5 relative">
-                          <BranchActionMenu
-                            branch={branch}
-                            isOpen={openMenuId === branch.id}
-                            onToggle={() =>
-                              setOpenMenuId((current) =>
-                                current === branch.id ? null : branch.id,
-                              )
-                            }
-                            onViewDetail={() => {
-                              setOpenMenuId(null);
-                              navigate(`/cabang/update/${branch.id}`);
-                            }}
-                            onToggleActive={() => {
-                              setOpenMenuId(null);
-                            }}
-                            onDelete={() => {
-                              setOpenMenuId(null);
-                              setBranchToDelete(branch);
-                            }}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
+            <BranchTable
+              isLoading={isLoading}
+              isError={isError}
+              branches={branches}
+              openMenuId={openMenuId}
+              onToggleMenu={(id) =>
+                setOpenMenuId((current) => (current === id ? null : id))
+              }
+              onViewDetail={(id) => {
+                setOpenMenuId(null);
+                navigate(`/cabang/detail/${id}`);
+              }}
+              onToggleActiveBranch={(branch) => {
+                setOpenMenuId(null);
+                setBranchToToggleActive(branch);
+              }}
+              onDeleteBranch={(branch) => {
+                setOpenMenuId(null);
+                setBranchToDelete(branch);
+              }}
+              getBranchCode={getBranchCode}
+            />
           )}
         </div>
 
@@ -452,6 +369,25 @@ export default function CabangList() {
         isLoading={deleteFlexParamMutation.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setBranchToDelete(null)}
+      />
+
+      <CustomConfirmModal
+        open={Boolean(branchToToggleActive)}
+        title={branchToToggleActive?.active ? "Nonaktifkan cabang ini?" : "Aktifkan cabang ini?"}
+        description={
+          <>
+            <span className="font-medium">{branchToToggleActive?.value_param}</span>{" "}
+            {branchToToggleActive?.active
+              ? "akan dinonaktifkan dan tidak dapat digunakan untuk operasional. Data cabang tetap tersimpan."
+              : "akan diaktifkan kembali untuk operasional."}
+          </>
+        }
+        icon={<Building2 size={22} />}
+        iconBgClassName="bg-[#fce9ea] text-[#d1293d]"
+        confirmText={branchToToggleActive?.active ? "Ya, Nonaktifkan" : "Ya, Aktifkan"}
+        confirmButtonClassName="bg-[#d1293d] hover:bg-[#b5222f] text-[#fdfeff]"
+        onConfirm={handleConfirmToggleActive}
+        onCancel={() => setBranchToToggleActive(null)}
       />
     </DashboardLayout>
   );

@@ -4,6 +4,8 @@ import ProtectedRoute from "./components/global/ProtectedRoute";
 import CabangList from "./pages/cabang/list";
 import CreateCabang from "./pages/cabang/create";
 import UpdateCabang from "./pages/cabang/update";
+import DetailCabang from "./pages/cabang/detail";
+import DetailInventory from "./pages/cabang/inventoryDetail";
 import Dashboard from "./pages/dashboard";
 import CategoryList from "./pages/data-master/category/list";
 import CreatePromo from "./pages/data-master/event-promo/create";
@@ -35,6 +37,8 @@ function App() {
         <Route path="/cabang" element={<CabangList />} />
         <Route path="/cabang/create" element={<CreateCabang />} />
         <Route path="/cabang/update/:id" element={<UpdateCabang />} />
+        <Route path="/cabang/detail/:id" element={<DetailCabang />} />
+        <Route path="/cabang/detail/:id/inventory" element={<DetailInventory />} />
         <Route path="/data-master/role-pengguna" element={<RoleManagementList />} />
         <Route path="/data-master/kategori" element={<CategoryList />} />
         <Route path="/data-master/metode-pembayaran" element={<PaymentMethodList />} />

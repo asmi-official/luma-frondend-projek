@@ -24,20 +24,21 @@ export function SummaryCard({
 
   return (
     <div
-      className={`min-w-0 rounded-[16px] border border-[#eef0f4] border-l-[4px] p-4 sm:px-3 sm:py-2.5 sm:rounded-lg sm:border-l-2 ${toneStyle}`}
+      className={`flex h-[167px] w-full min-w-0 flex-col gap-4 rounded-[16px] border border-[#eef0f4] border-l-4 p-5 ${toneStyle}`}
     >
-      <div className="flex items-center gap-2.5 sm:gap-2">
-        <span className="flex size-7 sm:size-5 items-center justify-center rounded-md bg-current/10">
+      {/* Header: icon + label */}
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border border-current/20 bg-current/10 [&>svg]:size-[18px]">
           {icon}
         </span>
-        <p className="truncate text-xs sm:text-[9px] font-medium text-[#7e8999]">
-          {label}
-        </p>
+        <p className="truncate text-sm font-medium text-[#7e8999]">{label}</p>
       </div>
-      <p className="mt-3 sm:mt-2 text-2xl sm:text-[19px] font-semibold leading-none text-[#20242d]">
-        {value}
-      </p>
-      <p className="mt-3 sm:mt-2 truncate text-[10px] sm:text-[8px] text-[#9aa5b5]">
+
+      {/* Value */}
+      <p className="text-[28px] font-bold leading-8 text-[#20242d]">{value}</p>
+
+      {/* Description */}
+      <p className="truncate text-[11px] leading-4 text-[#9aa5b5]">
         {description}
       </p>
     </div>
