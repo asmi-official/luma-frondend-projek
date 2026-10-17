@@ -20,12 +20,13 @@ import {
   formatPromoBenefit,
   formatPromoPeriod,
 } from '../../../pages/data-master/event-promo/format'
-import type {
-  PromoDiscountType,
-  PromoFormValues,
-  PromoProduct,
+import {
+  PROMO_DISCOUNT_TYPE_DESCRIPTION,
+  PROMO_DISCOUNT_TYPE_TITLE,
+  type PromoDiscountType,
+  type PromoFormValues,
+  type PromoProduct,
 } from '../../../pages/data-master/event-promo/types'
-import { getTodayIsoDate } from '../../../pages/data-master/event-promo/utils'
 import { formatRupiah, formatRupiahWithPrefix, parseRupiah } from '../../../utils/currency'
 import DateTimeInput from '../../global/DateTimeInput'
 import PromoProductPickerDrawer from './PromoProductPickerDrawer'
@@ -47,14 +48,26 @@ const inputSx = {
 }
 
 const DISCOUNT_TYPE_OPTIONS: { value: PromoDiscountType; title: string; description: string }[] = [
-  { value: 'percentage', title: 'Diskon Persentase', description: 'Potongan harga dalam persen (%)' },
-  { value: 'nominal', title: 'Diskon Nominal', description: 'Potongan harga dalam nominal (Rp)' },
-  { value: 'special_price', title: 'Harga Spesial', description: 'Harga tetap khusus saat promo' },
+  {
+    value: 'percentage',
+    title: PROMO_DISCOUNT_TYPE_TITLE.percentage,
+    description: PROMO_DISCOUNT_TYPE_DESCRIPTION.percentage,
+  },
+  {
+    value: 'fixed',
+    title: PROMO_DISCOUNT_TYPE_TITLE.fixed,
+    description: PROMO_DISCOUNT_TYPE_DESCRIPTION.fixed,
+  },
+  {
+    value: 'special_price',
+    title: PROMO_DISCOUNT_TYPE_TITLE.special_price,
+    description: PROMO_DISCOUNT_TYPE_DESCRIPTION.special_price,
+  },
 ]
 
 const DISCOUNT_FIELD_BY_TYPE: Record<PromoDiscountType, { label: string; placeholder: string }> = {
   percentage: { label: 'Diskon', placeholder: 'Masukkan presentase diskon (contoh : 20%)' },
-  nominal: { label: 'Diskon', placeholder: 'Masukkan nominal diskon (contoh : 5.000)' },
+  fixed: { label: 'Diskon', placeholder: 'Masukkan nominal diskon (contoh : 5.000)' },
   special_price: { label: 'Harga Spesial', placeholder: 'Masukkan harga spesial (contoh : 15.000)' },
 }
 
@@ -480,10 +493,11 @@ function DiscountRulesSection({ control, setValue }: DiscountRulesSectionProps) 
 
 type PeriodSectionProps = {
   control: Control<PromoFormValues>
-  minStartDate: string
+  originalStartDate?: string
 }
 
-function PeriodSection({ control, minStartDate }: PeriodSectionProps) {
+function PeriodSection({ control, originalStartDate }: PeriodSectionProps) {
+  const minStartDate = new Date().toLocaleDateString('en-CA')
   const [useTime, startDate] = useWatch({ control, name: ['useTime', 'startDate'] })
 
   // The end date can never be earlier than the start date (or, until a start date is set, the earliest allowed start)
@@ -502,7 +516,9 @@ function PeriodSection({ control, minStartDate }: PeriodSectionProps) {
           required
           rules={{
             required: 'Tanggal mulai wajib diisi',
-            validate: (value) => value >= minStartDate || 'Tanggal mulai tidak boleh sebelum hari ini',
+            // A promo that already started keeps its original start date as long as it isn't changed
+            validate: (value) =>
+              value >= minStartDate || value === originalStartDate || 'Tanggal mulai tidak boleh sebelum hari ini',
             // Re-check the end date whenever the start date changes
             deps: ['endDate'],
           }}
@@ -641,11 +657,11 @@ function PromoSummarySection({ control }: { control: Control<PromoFormValues> })
 type PromoFormProps = {
   control: Control<PromoFormValues>
   setValue: UseFormSetValue<PromoFormValues>
-  /** Earliest allowed start date; defaults to today. An existing promo that already started keeps its own date allowed. */
-  minStartDate?: string
+  /** Start date the promo already has (when editing), which stays valid even if it is before today */
+  originalStartDate?: string
 }
 
-export default function PromoForm({ control, setValue, minStartDate = getTodayIsoDate() }: PromoFormProps) {
+export default function PromoForm({ control, setValue, originalStartDate }: PromoFormProps) {
   return (
     <div className="flex w-full flex-col gap-4">
       <SectionCard title="Informasi Promo">
@@ -670,7 +686,7 @@ export default function PromoForm({ control, setValue, minStartDate = getTodayIs
 
       <DiscountRulesSection control={control} setValue={setValue} />
 
-      <PeriodSection control={control} minStartDate={minStartDate} />
+      <PeriodSection control={control} originalStartDate={originalStartDate} />
 
       <PromoSummarySection control={control} />
     </div>

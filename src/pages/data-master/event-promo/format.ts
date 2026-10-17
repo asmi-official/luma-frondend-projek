@@ -43,20 +43,20 @@ export function formatPromoPeriod(startDate: string, endDate: string) {
 /** Compact value for the promo table: "20%", "Rp5.000" or "Harga Spesial". */
 export function formatPromoDiscount(type: PromoDiscountType, value: number) {
   if (type === 'percentage') return `${value}%`
-  if (type === 'nominal') return `Rp${formatRupiah(value) || '0'}`
+  if (type === 'fixed') return `Rp${formatRupiah(value) || '0'}`
   return 'Harga Spesial'
 }
 
 /** Label for previews and summaries: "Diskon 20%", "Diskon Rp 5.000" or "Harga Spesial". */
 export function formatPromoBenefit(type: PromoDiscountType, value: number) {
   if (type === 'percentage') return `Diskon ${value}%`
-  if (type === 'nominal') return `Diskon ${formatRupiahWithPrefix(value)}`
+  if (type === 'fixed') return `Diskon ${formatRupiahWithPrefix(value)}`
   return 'Harga Spesial'
 }
 
 /** Price of a product once the promo is applied. */
 export function calculatePromoPrice(price: number, type: PromoDiscountType, value: number) {
   if (type === 'percentage') return Math.max(0, Math.round((price * (100 - value)) / 100))
-  if (type === 'nominal') return Math.max(0, price - value)
+  if (type === 'fixed') return Math.max(0, price - value)
   return value
 }

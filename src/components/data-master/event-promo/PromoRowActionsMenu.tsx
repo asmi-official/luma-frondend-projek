@@ -5,12 +5,13 @@ import EllipsisVerticalIcon from '../../../icon/EllipsisVerticalIcon'
 
 type PromoRowActionsMenuProps = {
   onEdit: () => void
+  onViewDetail: () => void
   onDelete: () => void
 }
 
 const MENU_WIDTH = 180
 
-export default function PromoRowActionsMenu({ onEdit, onDelete }: PromoRowActionsMenuProps) {
+export default function PromoRowActionsMenu({ onEdit, onViewDetail, onDelete }: PromoRowActionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -84,6 +85,15 @@ export default function PromoRowActionsMenu({ onEdit, onDelete }: PromoRowAction
             >
               <DynamicLucideIcon name="pencil" size={16} className="text-[#20242d]" />
               <span className="text-[13px] whitespace-nowrap text-[#20242d]">Ubah Promo</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelect(onViewDetail)}
+              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left hover:bg-[#f7f8fc]"
+            >
+              <DynamicLucideIcon name="eye" size={16} className="text-[#20242d]" />
+              <span className="text-[13px] whitespace-nowrap text-[#20242d]">Lihat Detail</span>
             </button>
 
             <button

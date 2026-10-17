@@ -15,6 +15,10 @@ export type Product = {
   sell_price: string
   stock: number
   description: string | null
+  /** The promo this product currently belongs to, null when it has none */
+  promo_id: string | null
+  /** Rupiah off this product's price (or its own price for a special price promo), decimal as text */
+  promo_discount: string | null
   active: boolean
   photo_id: string | null
   photo_url: string | null
