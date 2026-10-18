@@ -7,6 +7,8 @@ import UpdateCabang from "./pages/cabang/update";
 import DetailCabang from "./pages/cabang/detail";
 import DetailInventory from "./pages/cabang/inventoryDetail";
 import Dashboard from "./pages/dashboard";
+import InventoryList from "./pages/inventory/list";
+import ExpenseList from "./pages/pengeluaran/list";
 import CategoryList from "./pages/data-master/category/list";
 import CreatePromo from "./pages/data-master/event-promo/create";
 import EventPromoList from "./pages/data-master/event-promo/list";
@@ -31,6 +33,8 @@ function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/inventory" element={<InventoryList />} />
+        <Route path="/pengeluaran" element={<ExpenseList />} />
         <Route path="/product" element={<ProductList />} />
         <Route path="/product/create" element={<CreateProduct />} />
         <Route path="/product/:id/update" element={<UpdateProduct />} />

@@ -50,7 +50,7 @@ export default function FilterDropdown<T extends string>({
   }
 
   return (
-    <div ref={containerRef} className="relative flex h-full shrink-0 items-stretch">
+    <div ref={containerRef} className="relative flex shrink-0 items-stretch">
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

@@ -124,7 +124,7 @@ export default function ProductList() {
                     </Button>
                 </div>
 
-                <div className="flex w-full items-center gap-3">
+                <div className="flex w-full items-stretch gap-3">
                     <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#e9e9ea] bg-white p-3">
                         <DynamicLucideIcon name="search" size={18} className="text-[#8f99a7]" />
                         <input

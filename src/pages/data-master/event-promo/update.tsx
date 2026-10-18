@@ -106,7 +106,7 @@ export default function UpdatePromo() {
                 start_time: values.useTime ? values.startTime : null,
                 end_time: values.useTime ? values.endTime : null,
                 // An update always sets the promo to Aktif; the API worker moves it to Terjadwal/Selesai later
-                status: 'Aktif',
+                status: 'Terjadwal',
                 products: values.products.map((product) => {
                     let promoDiscount = values.discountValue
                     if (isSpecialPrice) {
