@@ -3,12 +3,10 @@ import { isAxiosError } from "axios";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import { useFlexParams, useUpdateFlexParam } from "../../api/flexParams";
+import { useCabangDetail, useUpdateCabang } from "../../api/cabang";
 import CabangForm from "../../components/cabang/CabangForm";
 import DashboardLayout from "../../components/global/DashboardLayout";
 import type { CabangFormValues } from "./types";
-
-const CABANG_TYPE_PARAM = "BRANCH_OWNER";
 
 type ServerFieldError = {
   field: string;
@@ -21,12 +19,11 @@ type ServerErrorResponse = {
 };
 
 const fieldNameMap: Record<string, keyof CabangFormValues> = {
-  value_param: "name",
-  alamat: "alamat",
-  telepon: "telepon",
+  name: "name",
+  address: "alamat",
+  phone: "telepon",
   email: "email",
-  icon: "icon",
-  color_icon: "color",
+  manager_name: "namaPengguna",
   active: "active",
 };
 
@@ -42,7 +39,7 @@ const emptyValues: CabangFormValues = {
   jamTutup: "",
   icon: "building-2",
   color: "#4e5bd6",
-  active: false,
+  active: true,
 };
 
 export default function UpdateCabang() {
@@ -52,64 +49,71 @@ export default function UpdateCabang() {
     defaultValues: emptyValues,
     shouldUnregister: true,
   });
-
-  const { data, isLoading: isFetching } = useFlexParams({
-    filter: [{ key: "type_param", operator: "equal", value: CABANG_TYPE_PARAM }],
-    page: 1,
-    limit: 100,
-  });
-
-  const updateFlexParamMutation = useUpdateFlexParam();
+  const { data: cabangDetail, isLoading: isFetching } = useCabangDetail(id);
+  const updateCabangMutation = useUpdateCabang();
 
   useEffect(() => {
-    if (!id || !data?.data) return;
-    const branch = data.data.find((item) => item.id === id);
-    if (branch) {
-      reset({
-        name: branch.value_param ?? "",
-        alamat: branch.description ?? "",
-        telepon: "",
-        email: "",
-        username: "",
-        namaPengguna: "",
-        password: "",
-        jamBuka: "",
-        jamTutup: "",
-        icon: branch.icon ?? "building-2",
-        color: branch.color_icon ?? "#4e5bd6",
-        active: branch.active,
-      });
-    }
-  }, [id, data, reset]);
+    const branch = cabangDetail?.data;
+    if (!branch) return;
+
+    reset({
+      name: branch.name,
+      alamat: branch.address ?? "",
+      telepon: branch.phone ?? "",
+      email: branch.email ?? "",
+      username: "",
+      namaPengguna: branch.manager_name ?? "",
+      password: "",
+      jamBuka: "",
+      jamTutup: "",
+      icon: branch.icon ?? "building-2",
+      color: branch.color_icon ?? "#4e5bd6",
+      active: branch.active,
+    });
+  }, [cabangDetail, reset]);
 
   const handleMutationError = (error: unknown) => {
     if (!isAxiosError(error)) return;
-    const resData = error.response?.data as ServerErrorResponse | undefined;
+    const data = error.response?.data as ServerErrorResponse | undefined;
 
-    if (resData?.errors?.length) {
-      resData.errors.forEach(({ field, message }) => {
+    if (data?.errors?.length) {
+      data.errors.forEach(({ field, message }) => {
         const formField = fieldNameMap[field];
         if (formField) setError(formField, { type: "server", message });
       });
       return;
     }
 
-    if (resData?.message) setError("name", { type: "server", message: resData.message });
+    if (data?.message)
+      setError("name", { type: "server", message: data.message });
   };
 
   const submit = (values: CabangFormValues) => {
     if (!id) return;
-    updateFlexParamMutation.mutate(
+
+    updateCabangMutation.mutate(
       {
         id,
-        value_param: values.name,
-        description: values.alamat,
+        name: values.name,
+        address: values.alamat,
+        phone: values.telepon,
+        email: values.email.trim() || null,
+        manager_name: values.namaPengguna.trim() || null,
         icon: values.icon,
         color_icon: values.color,
         color_bg_icon: `${values.color}1a`,
         active: values.active,
       },
-      { onSuccess: () => navigate("/cabang"), onError: handleMutationError },
+      {
+        onSuccess: () =>
+          navigate("/cabang", {
+              state: {
+                successMessage: "Cabang berhasil diperbarui",
+                description: "Data cabang telah diperbarui",
+              },
+          }),
+        onError: handleMutationError,
+      },
     );
   };
 
@@ -121,7 +125,9 @@ export default function UpdateCabang() {
       >
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold leading-[1.2] text-[#20242d]">Ubah Cabang</h1>
+            <h1 className="text-xl font-semibold leading-[1.2] text-[#20242d]">
+              Ubah Cabang
+            </h1>
             <p className="text-[11px] leading-[1.4] text-[#6a7789]">
               Perbarui detail cabang untuk mengatur operasional dan akses tim.
             </p>
@@ -141,7 +147,10 @@ export default function UpdateCabang() {
                 borderColor: "#4e5bd6",
                 color: "#4e5bd6",
                 fontWeight: 600,
-                "&:hover": { borderColor: "#4e5bd6", backgroundColor: "#f7f8fc" },
+                "&:hover": {
+                  borderColor: "#4e5bd6",
+                  backgroundColor: "#f7f8fc",
+                },
               }}
             >
               Batal
@@ -149,7 +158,7 @@ export default function UpdateCabang() {
             <Button
               type="submit"
               variant="contained"
-              disabled={updateFlexParamMutation.isPending || isFetching}
+              disabled={updateCabangMutation.isPending || isFetching}
               sx={{
                 minWidth: "61px",
                 height: "29px",
@@ -163,7 +172,7 @@ export default function UpdateCabang() {
                 "&:hover": { bgcolor: "#3f4bc0", boxShadow: "none" },
               }}
             >
-              {updateFlexParamMutation.isPending ? "Menyimpan..." : "Simpan"}
+              {updateCabangMutation.isPending ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </div>

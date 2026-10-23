@@ -9,7 +9,7 @@ import DashboardLayout from '../../../components/global/DashboardLayout'
 import FilterDropdown, { type FilterDropdownOption } from '../../../components/global/FilterDropdown'
 import Pagination from '../../../components/global/Pagination'
 import DynamicLucideIcon from '../../../icon/DynamicLucideIcon'
-import PlusIcon from '../../../icon/PlusIcon'
+import PageHeader from '../../../components/global/PageHeader'
 import { PROMO_STATUSES, type PromoStatus } from './types'
 
 const PAGE_SIZE = 10
@@ -78,33 +78,12 @@ export default function EventPromoList() {
     return (
         <DashboardLayout pageTitle="Promo & Event">
             <div className="flex w-full flex-col gap-5 px-7 pt-6 pb-4">
-                <div className="flex w-full items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-semibold leading-[1.2] text-[#20242d]">Promo &amp; Event</h1>
-                        <p className="text-sm leading-[1.4] text-[#6a7789]">
-                            Buat dan kelola promo, voucher, serta kampanye diskon
-                        </p>
-                    </div>
-
-                    <Button
-                        type="button"
-                        variant="contained"
-                        onClick={() => navigate(CREATE_PATH)}
-                        startIcon={<PlusIcon size={18} className="text-[#fdfeff]" />}
-                        sx={{
-                            height: '40px',
-                            bgcolor: '#4e5bd6',
-                            color: '#fdfeff',
-                            textTransform: 'none',
-                            borderRadius: '8px',
-                            fontWeight: 600,
-                            boxShadow: 'none',
-                            '&:hover': { bgcolor: '#3f4bc0', boxShadow: 'none' },
-                        }}
-                    >
-                        Tambah Promo
-                    </Button>
-                </div>
+                <PageHeader
+                    title="Promo & Event"
+                    description="Buat dan kelola promo, voucher, serta kampanye diskon"
+                    actionLabel="Tambah Promo"
+                    onAction={() => navigate(CREATE_PATH)}
+                />
 
                 <div className="flex w-full items-center gap-3">
                     <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#e9e9ea] bg-white p-3">
