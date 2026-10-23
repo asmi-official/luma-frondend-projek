@@ -1,5 +1,6 @@
 import { Clock3 } from "lucide-react";
-import type { Control } from "react-hook-form";
+import { Controller, type Control } from "react-hook-form";
+import DateTimeInput from "../global/DateTimeInput";
 import CustomForm, { type CustomFormOption, type CustomFormSection } from "../global/CustomForm";
 import type { CabangFormValues } from "../../pages/cabang/types";
 
@@ -12,14 +13,9 @@ type CabangFormProps = {
   };
 };
 
-const timeOptions: CustomFormOption[] = Array.from({ length: 48 }, (_, index) => {
-  const hour = String(Math.floor(index / 2)).padStart(2, "0");
-  const minute = index % 2 === 0 ? "00" : "30";
-  const value = `${hour}:${minute}`;
-  return { label: value, value };
-});
+const timeOptions: CustomFormOption[] = [];
 
-function createSections(options?: CabangFormProps["options"]): CustomFormSection<CabangFormValues>[] {
+function createSections(control: Control<CabangFormValues>, options?: CabangFormProps["options"]): CustomFormSection<CabangFormValues>[] {
   const showBranchCode = options?.showBranchCode ?? true;
   const showManagerAccess = options?.showManagerAccess ?? true;
   const managerRole = options?.managerRole ?? "Manager";
@@ -62,25 +58,59 @@ function createSections(options?: CabangFormProps["options"]): CustomFormSection
     },
     {
       id: "opening-time",
-      kind: "select",
-      name: "jamBuka",
-      label: "Jam Operasional (Buka)",
-      required: true,
-      placeholder: "Pilih jam operasional (buka)",
-      options: timeOptions,
-      selectIcon: Clock3,
-      rules: { required: "Jam buka wajib diisi" },
+      kind: "render",
+      name: "jamBuka" as any,
+      render: (values) => (
+        <Controller
+          control={control}
+          name="jamBuka"
+          rules={{ required: "Jam buka wajib diisi" }}
+          render={({ field, fieldState }) => (
+            <div className="flex w-full flex-col gap-1.5">
+              <label className="flex items-center gap-[3px] text-[11px] font-medium text-[#20242d]">
+                Jam Operasional (Buka) <span className="text-[11px] text-[#a72131]">*</span>
+              </label>
+              <DateTimeInput
+                type="time"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder="Pilih jam operasional (buka)"
+                hasError={!!fieldState.error}
+              />
+              {fieldState.error && <p className="text-[10px] text-[#d32f2f]">{fieldState.error.message}</p>}
+            </div>
+          )}
+        />
+      ),
     },
     {
       id: "closing-time",
-      kind: "select",
-      name: "jamTutup",
-      label: "Jam Operasional (Tutup)",
-      required: true,
-      placeholder: "Pilih jam operasional (tutup)",
-      options: timeOptions,
-      selectIcon: Clock3,
-      rules: { required: "Jam tutup wajib diisi" },
+      kind: "render",
+      name: "jamTutup" as any,
+      render: (values) => (
+        <Controller
+          control={control}
+          name="jamTutup"
+          rules={{ required: "Jam tutup wajib diisi" }}
+          render={({ field, fieldState }) => (
+            <div className="flex w-full flex-col gap-1.5">
+              <label className="flex items-center gap-[3px] text-[11px] font-medium text-[#20242d]">
+                Jam Operasional (Tutup) <span className="text-[11px] text-[#a72131]">*</span>
+              </label>
+              <DateTimeInput
+                type="time"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder="Pilih jam operasional (tutup)"
+                hasError={!!fieldState.error}
+              />
+              {fieldState.error && <p className="text-[10px] text-[#d32f2f]">{fieldState.error.message}</p>}
+            </div>
+          )}
+        />
+      ),
     },
   ];
 
@@ -163,5 +193,5 @@ function createSections(options?: CabangFormProps["options"]): CustomFormSection
 }
 
 export default function CabangForm({ control, options }: CabangFormProps) {
-  return <CustomForm control={control} sections={createSections(options)} />;
+  return <CustomForm control={control} sections={createSections(control, options)} />;
 }

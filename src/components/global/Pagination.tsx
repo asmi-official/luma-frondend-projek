@@ -1,59 +1,61 @@
-import DynamicLucideIcon from '../../icon/DynamicLucideIcon'
-
-const VISIBLE_PAGES = 6
-
 type PaginationProps = {
-  page: number
-  totalPages: number
-  onChange: (page: number) => void
-}
+  page: number;
+  totalPages: number;
+  onChange: (page: number) => void;
+  rangeStart?: number;
+  rangeEnd?: number;
+  totalItems?: number;
+  itemLabel?: string;
+};
 
-export default function Pagination({ page, totalPages, onChange }: PaginationProps) {
-  const start = Math.max(1, Math.min(page - 2, totalPages - VISIBLE_PAGES + 1))
-  const end = Math.min(totalPages, start + VISIBLE_PAGES - 1)
-  const pageNumbers = Array.from({ length: end - start + 1 }, (_, i) => start + i)
-
-  const itemClass = 'flex items-center justify-center gap-1 px-3 py-2 text-[12.5px] whitespace-nowrap'
-  const linkClass = `${itemClass} font-medium text-[#4e5bd6] hover:bg-[#f7f8fc]`
+export default function Pagination({
+  page,
+  totalPages,
+  onChange,
+  rangeStart,
+  rangeEnd,
+  totalItems,
+  itemLabel = "produk",
+}: PaginationProps) {
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
 
   return (
-    <div className="flex items-stretch overflow-hidden rounded-[10px] border border-[#ebedf1] bg-white">
-      {page > 1 && (
-        <button type="button" onClick={() => onChange(page - 1)} className={linkClass}>
-          <DynamicLucideIcon name="chevron-left" size={8} />
-          Prev
-        </button>
-      )}
+    <div className="flex w-full flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+      <p className="text-[13px] text-[#6a7789]">
+        {rangeStart !== undefined && rangeEnd !== undefined && totalItems !== undefined
+          ? `Menampilkan ${rangeStart}–${rangeEnd} dari ${totalItems} ${itemLabel}`
+          : ""}
+      </p>
 
-      {pageNumbers.map((pageNumber, i) => (
-        <button
-          key={pageNumber}
-          type="button"
-          onClick={() => onChange(pageNumber)}
-          className={`${itemClass} ${i > 0 || page > 1 ? 'border-l border-[#ebedf1]' : ''} ${
-            pageNumber === page
-              ? 'bg-[#eff0f3] font-semibold text-[#a6abb4]'
-              : 'font-medium text-[#4e5bd6] hover:bg-[#f7f8fc]'
-          }`}
-        >
-          {pageNumber}
-        </button>
-      ))}
+      <div className="flex items-center overflow-hidden rounded-[10px] border border-[#ebedf1] bg-white">
+        {pages.map((p, i) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onChange(p)}
+            className={`flex items-center justify-center px-3.5 py-2 text-xs font-medium transition-colors ${
+              i > 0 ? "border-l border-[#ebedf1]" : ""
+            } ${
+              p === page
+                ? "bg-[#eff0f3] font-semibold text-[#8f99a7]"
+                : "text-[#4e5bd6] hover:bg-[#f7f8fc]"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
 
-      {end < totalPages && (
-        <span className={`${itemClass} border-l border-[#ebedf1] font-medium text-[#b7bbc4]`}>…</span>
-      )}
-
-      {page < totalPages && (
-        <button
-          type="button"
-          onClick={() => onChange(page + 1)}
-          className={`${linkClass} border-l border-[#ebedf1]`}
-        >
-          Next
-          <DynamicLucideIcon name="chevron-right" size={8} />
-        </button>
-      )}
+        {page < totalPages && (
+          <button
+            type="button"
+            onClick={() => onChange(page + 1)}
+            className="flex items-center gap-1 px-3.5 py-2 text-xs font-medium text-[#4e5bd6] hover:bg-[#f7f8fc] border-l border-[#ebedf1]"
+          >
+            Next
+            <span className="text-[10px]">›</span>
+          </button>
+        )}
+      </div>
     </div>
-  )
+  );
 }

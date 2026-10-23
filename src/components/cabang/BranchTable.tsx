@@ -1,19 +1,19 @@
-import type { FlexParam } from "../../api/flexParams";
+import type { Cabang } from "../../api/cabang";
+import { formatRupiahWithPrefix } from "../../utils/currency";
 import { StatusBadge } from "./StatusBadge";
 import { LoadingRows } from "./BranchComponents";
 import { BranchActionMenu } from "./BranchActionMenu";
-import { DUMMY_BRANCH_DETAILS } from "../../pages/cabang/dummyData";
 
 interface BranchTableProps {
   isLoading: boolean;
   isError: boolean;
-  branches: FlexParam[];
+  branches: Cabang[];
   openMenuId: string | null;
   onToggleMenu: (id: string) => void;
   onViewDetail: (id: string) => void;
-  onToggleActiveBranch: (branch: FlexParam) => void;
-  onDeleteBranch: (branch: FlexParam) => void;
-  getBranchCode: (id: string) => string;
+  onEditBranch: (id: string) => void;
+  onToggleActiveBranch: (branch: Cabang) => void;
+  onDeleteBranch: (branch: Cabang) => void;
 }
 
 // Total 1124px: 316 / 186 / 150 / 114 / 148 / 146 / 64
@@ -34,12 +34,12 @@ export function BranchTable({
   openMenuId,
   onToggleMenu,
   onViewDetail,
+  onEditBranch,
   onToggleActiveBranch,
   onDeleteBranch,
-  getBranchCode,
 }: BranchTableProps) {
   return (
-    <div className="w-full rounded-[12px] border border-[#eceef2] bg-white">
+    <div className="w-full rounded-[12px] border border-[#eceef2] bg-white overflow-x-visible">
       <table className="w-full table-fixed border-collapse text-left">
         <colgroup>
           {COLUMNS.map((col) => (
@@ -74,18 +74,7 @@ export function BranchTable({
           )}
           {!isLoading &&
             !isError &&
-            branches.map((branch: FlexParam) => {
-              const dummyInfo = DUMMY_BRANCH_DETAILS[branch.id];
-              const code = dummyInfo
-                ? dummyInfo.code
-                : getBranchCode(branch.id);
-              const manager = dummyInfo ? dummyInfo.manager : (branch.created_by || "Administrator");
-              const salesNumber = dummyInfo ? parseInt(dummyInfo.sales.replace(/[^0-9]/g, ""), 10) : 0;
-              const sales = salesNumber > 0 ? `Rp ${salesNumber.toLocaleString("id-ID")}` : "Rp 0";
-              const transactions = dummyInfo ? dummyInfo.transactions : 0;
-              const expenseNumber = dummyInfo ? parseInt(dummyInfo.expenses.replace(/[^0-9]/g, ""), 10) : 0;
-              const expenses = expenseNumber > 0 ? `Rp ${expenseNumber.toLocaleString("id-ID")}` : "Rp 0";
-
+            branches.map((branch) => {
               return (
                 <tr
                   key={branch.id}
@@ -93,23 +82,23 @@ export function BranchTable({
                 >
                   <td className="px-4 py-[11px]">
                     <p className="truncate text-sm font-semibold leading-5 text-[#303641]">
-                      {branch.value_param}
+                      {branch.name}
                     </p>
                     <p className="mt-0.5 text-[11px] leading-4 text-[#9aa5b5]">
-                      {code}
+                      {branch.code}
                     </p>
                   </td>
                   <td className="truncate px-4 py-[11px] text-[13px] text-[#556070]">
-                    {manager}
+                    {branch.manager_name || branch.created_by || "Administrator"}
                   </td>
                   <td className="px-4 py-[11px] text-[13px] font-semibold text-[#20242d]">
-                    {sales}
+                    {formatRupiahWithPrefix(branch.sales_total ?? 0)}
                   </td>
                   <td className="px-4 py-[11px] text-[13px] text-[#556070]">
-                    {transactions}
+                    {branch.transaction_count ?? 0}
                   </td>
                   <td className="px-4 py-[11px] text-[13px] font-semibold text-[#d1293d]">
-                    {expenses}
+                    {formatRupiahWithPrefix(branch.expense_total ?? 0)}
                   </td>
                   <td className="px-4 py-[11px]">
                     <StatusBadge active={branch.active} />
@@ -120,6 +109,7 @@ export function BranchTable({
                       isOpen={openMenuId === branch.id}
                       onToggle={() => onToggleMenu(branch.id)}
                       onViewDetail={() => onViewDetail(branch.id)}
+                      onEdit={() => onEditBranch(branch.id)}
                       onToggleActive={() => onToggleActiveBranch(branch)}
                       onDelete={() => onDeleteBranch(branch)}
                     />

@@ -2,12 +2,10 @@ import Button from "@mui/material/Button";
 import { isAxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useCreateFlexParam } from "../../api/flexParams";
+import { useCreateCabang } from "../../api/cabang";
 import CabangForm from "../../components/cabang/CabangForm";
 import DashboardLayout from "../../components/global/DashboardLayout";
 import type { CabangFormValues } from "./types";
-
-const CABANG_TYPE_PARAM = "BRANCH_OWNER";
 
 type ServerFieldError = {
   field: string;
@@ -20,12 +18,11 @@ type ServerErrorResponse = {
 };
 
 const fieldNameMap: Record<string, keyof CabangFormValues> = {
-  value_param: "name",
-  alamat: "alamat",
-  telepon: "telepon",
+  name: "name",
+  address: "alamat",
+  phone: "telepon",
   email: "email",
-  icon: "icon",
-  color_icon: "color",
+  manager_name: "namaPengguna",
   active: "active",
 };
 
@@ -41,7 +38,7 @@ const emptyValues: CabangFormValues = {
   jamTutup: "",
   icon: "building-2",
   color: "#4e5bd6",
-  active: false,
+  active: true,
 };
 
 export default function CreateCabang() {
@@ -50,7 +47,7 @@ export default function CreateCabang() {
     defaultValues: emptyValues,
     shouldUnregister: true,
   });
-  const createFlexParamMutation = useCreateFlexParam();
+  const createCabangMutation = useCreateCabang();
 
   const handleMutationError = (error: unknown) => {
     if (!isAxiosError(error)) return;
@@ -68,16 +65,28 @@ export default function CreateCabang() {
   };
 
   const submit = (values: CabangFormValues) => {
-    createFlexParamMutation.mutate(
+    createCabangMutation.mutate(
       {
-        type_param: CABANG_TYPE_PARAM,
-        value_param: values.name,
+        name: values.name,
+        address: values.alamat,
+        phone: values.telepon,
+        email: values.email.trim() || null,
+        manager_name: values.namaPengguna.trim() || null,
         icon: values.icon,
         color_icon: values.color,
         color_bg_icon: `${values.color}1a`,
         active: values.active,
       },
-      { onSuccess: () => navigate("/cabang"), onError: handleMutationError },
+      {
+        onSuccess: () =>
+          navigate("/cabang", {
+              state: {
+                successMessage: "Cabang berhasil ditambahkan",
+                description: "Cabang baru telah ditambahkan",
+              },
+          }),
+        onError: handleMutationError,
+      },
     );
   };
 
@@ -89,7 +98,9 @@ export default function CreateCabang() {
       >
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold leading-[1.2] text-[#20242d]">Tambah Cabang</h1>
+            <h1 className="text-xl font-semibold leading-[1.2] text-[#20242d]">
+              Tambah Cabang
+            </h1>
             <p className="text-[11px] leading-[1.4] text-[#6a7789]">
               Tambahkan cabang untuk mengatur operasional dan akses tim di lokasi baru.
             </p>
@@ -117,7 +128,7 @@ export default function CreateCabang() {
             <Button
               type="submit"
               variant="contained"
-              disabled={createFlexParamMutation.isPending}
+              disabled={createCabangMutation.isPending}
               sx={{
                 minWidth: "61px",
                 height: "29px",
@@ -131,7 +142,7 @@ export default function CreateCabang() {
                 "&:hover": { bgcolor: "#3f4bc0", boxShadow: "none" },
               }}
             >
-              {createFlexParamMutation.isPending ? "Menyimpan..." : "Simpan"}
+              {createCabangMutation.isPending ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </div>

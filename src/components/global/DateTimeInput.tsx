@@ -38,17 +38,17 @@ export default function DateTimeInput({
 
   return (
     <div
-      className={`relative flex w-full items-center gap-2 rounded-xl border bg-white p-3 focus-within:border-[#4e5bd6] ${
-        hasError ? 'border-[#d32f2f]' : 'border-[#e9e9ea] hover:border-[#c7c9ce]'
+      className={`relative flex w-full items-center gap-2 rounded-[9px] border bg-white px-2.5 py-1.5 focus-within:border-[#4e5bd6] ${
+        hasError ? 'border-[#d32f2f]' : 'border-[#e6e9ef] hover:border-[#c7cdd8]'
       }`}
     >
-      <p className={`flex-1 text-sm leading-[1.4] ${value ? 'text-[#20242d]' : 'text-[#8f99a7]'}`}>
+      <p className={`flex-1 text-[11px] leading-[1.4] ${value ? 'text-[#20242d]' : 'text-[#9aa5b5]'}`}>
         {value ? (formatValue?.(value) ?? value) : placeholder}
       </p>
       <DynamicLucideIcon
         name={type === 'date' ? 'calendar' : 'clock-3'}
-        size={18}
-        className="shrink-0 text-[#8f99a7]"
+        size={14}
+        className="shrink-0 text-[#8d98a8]"
       />
 
       <input

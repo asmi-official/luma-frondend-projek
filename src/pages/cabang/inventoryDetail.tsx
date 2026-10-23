@@ -1,99 +1,37 @@
+import { ChevronLeft, PackageOpen } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useCabangDetail } from "../../api/cabang";
 import DashboardLayout from "../../components/global/DashboardLayout";
-import { useFlexParams } from "../../api/flexParams";
-import {
-  BranchInventoryContent,
-  type InventoryItem,
-} from "../../components/cabang/BranchInventoryContent";
-import { DUMMY_BRANCH_DETAILS } from "./dummyData";
-
-const INVENTORY: InventoryItem[] = [
-  {
-    name: "Kopi Arabika 1kg",
-    category: "Bahan Baku",
-    stock: 3,
-    min: 10,
-    status: "Menipis",
-  },
-  {
-    name: "Susu UHT Full Cream",
-    category: "Bahan Baku",
-    stock: 5,
-    min: 15,
-    status: "Menipis",
-  },
-  { name: "Cup 12oz", category: "Kemasan", stock: 0, min: 50, status: "Habis" },
-  {
-    name: "Sirup Karamel",
-    category: "Bahan Baku",
-    stock: 2,
-    min: 8,
-    status: "Menipis",
-  },
-  {
-    name: "Kopi Robusta 1kg",
-    category: "Bahan Baku",
-    stock: 18,
-    min: 10,
-    status: "Tersedia",
-  },
-  {
-    name: "Susu Oat",
-    category: "Bahan Baku",
-    stock: 12,
-    min: 8,
-    status: "Tersedia",
-  },
-  {
-    name: "Cup 16oz",
-    category: "Kemasan",
-    stock: 40,
-    min: 50,
-    status: "Tersedia",
-  },
-  {
-    name: "Sedotan Kertas",
-    category: "Kemasan",
-    stock: 8,
-    min: 20,
-    status: "Menipis",
-  },
-  {
-    name: "Sirup Vanilla",
-    category: "Bahan Baku",
-    stock: 9,
-    min: 8,
-    status: "Tersedia",
-  },
-  {
-    name: "Tisu Napkin",
-    category: "Perlengkapan",
-    stock: 25,
-    min: 15,
-    status: "Tersedia",
-  },
-];
 
 export default function DetailInventory() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
-  const { data: flexData } = useFlexParams({
-    filter: [{ key: "type_param", operator: "equal", value: "BRANCH_OWNER" }],
-    page: 1,
-    limit: 100,
-  });
-  const branch = flexData?.data?.find((item) => item.id === id);
-  const dummyInfo = id ? DUMMY_BRANCH_DETAILS[id] : undefined;
-  const branchName = branch ? branch.value_param : (dummyInfo ? "Cabang Kemang Raya" : "Cabang");
+  const { data: cabangDetail, isLoading } = useCabangDetail(id);
 
   return (
     <DashboardLayout pageTitle="Status Inventory">
-      <BranchInventoryContent
-        branchName={branchName}
-        inventory={INVENTORY}
-        onBack={() => navigate(`/cabang/detail/${id ?? ""}`)}
-      />
+      <div className="flex w-full flex-col gap-6 px-6 pt-5 pb-12 sm:px-8 sm:pt-6">
+        <button
+          type="button"
+          onClick={() => navigate(`/cabang/detail/${id ?? ""}`)}
+          className="flex w-fit items-center gap-1.5 text-xs font-semibold text-[#4e5bd6] hover:underline"
+        >
+          <ChevronLeft size={16} />
+          Kembali ke Detail Cabang
+        </button>
+
+        <section className="rounded-xl border border-[#eef0f4] bg-white px-6 py-12 text-center">
+          <PackageOpen size={32} className="mx-auto text-[#4e5bd6]" />
+          <h1 className="mt-4 text-lg font-semibold text-[#20242d]">
+            Status Inventory {cabangDetail?.data.name ? `— ${cabangDetail.data.name}` : ""}
+          </h1>
+          <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[#6a7789]">
+            {isLoading
+              ? "Memuat detail cabang..."
+              : "Data inventory belum tersedia dari API. Tidak ada data contoh yang ditampilkan."}
+          </p>
+        </section>
+      </div>
     </DashboardLayout>
   );
 }
